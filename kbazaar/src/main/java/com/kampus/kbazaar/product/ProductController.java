@@ -6,16 +6,22 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import java.util.List;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.Min;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1")
+@Validated
 public class ProductController {
 
-    private ProductService productService;
+    @Autowired
+    private final ProductService productService;
 
     public ProductController(ProductService productService) {
         this.productService = productService;
@@ -62,4 +68,19 @@ public class ProductController {
     public ProductResponse getProductById(@PathVariable String sku) {
         return productService.getBySku(sku);
     }
+
+    @GetMapping("/getProducts")
+    public ResponseEntity<?> getProductsWithPage(
+            @RequestParam(required = false, defaultValue = "10") @Min(value = 0,message = "Limit size must be positive number") int limit,
+            @RequestParam(required = false, defaultValue = "0") @Min(value = 0, message = "Page size must be positive number") int page) {
+        List<ProductResponse> productResponses = productService.listAllProductByPage(limit,page*limit);
+        ResponseMsg res = new ResponseMsg();
+        res.setPage(page);
+        res.setLimit(limit);
+        res.setData(productResponses);
+        return ResponseEntity.ok(res);
+    }
+
 }
+
+
