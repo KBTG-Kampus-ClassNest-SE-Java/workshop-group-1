@@ -5,12 +5,10 @@ import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import java.util.List;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.List;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -70,16 +68,20 @@ public class ProductController {
 
     @GetMapping("/getProducts")
     public ResponseEntity<?> getProductsWithPage(
-            @RequestParam(required = false, defaultValue = "10") @Min(value = 0,message = "Limit size must be positive number") int limit,
-            @RequestParam(required = false, defaultValue = "0") @Min(value = 0, message = "Page size must be positive number") int page) {
-        List<ProductResponse> productResponses = productService.listAllProductByPage(limit,page*limit);
-        ResponseMsg res = new ResponseMsg();
-        res.setPage(page);
-        res.setLimit(limit);
-        res.setData(productResponses);
-        return ResponseEntity.ok(res);
+            @RequestParam(name = "limit", required = false, defaultValue = "10")
+                    @Min(value = 0, message = "Limit size must be positive number")
+                    int limit,
+            @RequestParam(name = "page", required = false, defaultValue = "0")
+                    @Min(value = 0, message = "Page size must be positive number")
+                    int page) {
+
+        List<ProductResponse> productResponses =
+                productService.listAllProductByPage(limit, page * limit);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("page", Integer.toString(page));
+        headers.set("limit", Integer.toString(limit));
+
+        return new ResponseEntity<>(productResponses, headers, HttpStatus.OK);
     }
-
 }
-
-
