@@ -10,8 +10,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class ProductService {
 
-    @Autowired
     private ProductRepository productRepository;
+
+    public ProductService(ProductRepository productRepository) {
+        this.productRepository = productRepository;
+    }
 
     public List<ProductResponse> getAll() {
         return productRepository.findAll().stream().map(Product::toResponse).toList();
