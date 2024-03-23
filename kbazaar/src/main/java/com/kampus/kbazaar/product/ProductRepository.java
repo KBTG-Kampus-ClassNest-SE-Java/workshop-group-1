@@ -12,5 +12,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Optional<Product> findBySku(String sku);
 
     @Query(value = "SELECT * FROM product LIMIT :limit OFFSET :page", nativeQuery = true)
-    List<Product> findAllByPage(int limit,int page);
+    List<Product> findAllByPage(int limit, int page);
 }
