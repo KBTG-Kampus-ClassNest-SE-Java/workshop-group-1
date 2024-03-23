@@ -1,16 +1,29 @@
 package com.kampus.kbazaar.cart;
 
-import com.kampus.kbazaar.product.Product;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.Positive;
 import lombok.Data;
 
+@Entity(name = "cart")
 @Data
 public class Cart {
-    private int userID;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private long id;
 
-    private Product[] products;
+    @NotBlank @NotEmpty private String username;
 
-    public Cart(int userID, Product[] products) {
-        this.userID = userID;
-        this.products = products;
+    @NotBlank @NotEmpty private String sku;
+
+    @Positive private int quantity;
+
+    public Cart() {}
+
+    public Cart(String username, String sku, int quantity) {
+        this.username = username;
+        this.sku = sku;
+        this.quantity = quantity;
     }
 }
