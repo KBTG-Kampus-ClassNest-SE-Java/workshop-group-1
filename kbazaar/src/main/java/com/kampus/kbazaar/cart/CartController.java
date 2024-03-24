@@ -1,5 +1,6 @@
 package com.kampus.kbazaar.cart;
 
+import com.kampus.kbazaar.promotion.Promotion;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,5 +28,12 @@ public class CartController {
 
         CartResponse cartResponse = cartService.addCart(userName, cartRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(cartResponse);
+    }
+    @PostMapping("/carts/{username}/promotions")
+    public ResponseEntity<String> addPromotions(
+            @PathVariable("username") String userName,
+            @RequestBody @Valid Promotion promotion) {
+        cartService.addPromotions(userName, promotion);
+        return ResponseEntity.status(HttpStatus.ACCEPTED).body("promotion cart success");
     }
 }

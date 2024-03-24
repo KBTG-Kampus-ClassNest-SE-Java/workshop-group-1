@@ -4,6 +4,9 @@ import com.kampus.kbazaar.product.Product;
 import com.kampus.kbazaar.product.ProductResponse;
 import com.kampus.kbazaar.product.ProductResponseWithDiscount;
 import com.kampus.kbazaar.product.ProductService;
+import com.kampus.kbazaar.promotion.Promotion;
+import com.kampus.kbazaar.promotion.PromotionResponse;
+import com.kampus.kbazaar.promotion.PromotionService;
 import com.kampus.kbazaar.shopper.ShopperResponse;
 import com.kampus.kbazaar.shopper.ShopperService;
 import jakarta.transaction.Transactional;
@@ -21,14 +24,18 @@ public class CartService {
     private final ShopperService shopperService;
     private final ProductService productService;
 
+    private final PromotionService promotionService;
     @Autowired
     public CartService(
             CartRepository cartRepository,
             ShopperService shopperService,
-            ProductService productService) {
+            ProductService productService,
+            PromotionService promotionService
+            ) {
         this.cartRepository = cartRepository;
         this.shopperService = shopperService;
         this.productService = productService;
+        this.promotionService = promotionService;
     }
 
     @Transactional
@@ -83,5 +90,26 @@ public class CartService {
         }
 
         return new CartResponse(userName, productList, totalPrice, 0);
+    }
+    public void addPromotions(String userName, Promotion promotion) {
+        List<Cart> cartResponse = cartRepository.findAllByUsername(userName);
+        String promotionCode = promotion.toResponse().code();
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        PromotionResponse promotionResponse = promotionService.getPromotionByCode(promotionCode);
+        if(promotionResponse.applicableTo().equals("ENTIRE_CART")){
+            for (int i = 0; i < cartResponse.size(); i++)
+            {
+                Cart cart = cartResponse.get(i);
+                ProductResponse product = productService.getBySku(cart.getSku());
+                totalPrice = product.price().add(totalPrice);
+            }
+        }
+        if(promotionResponse.applicableTo().equals("ENTIRE_CART") && promotionResponse.discountType().equals("FIXED_AMOUNT")){
+            totalPrice = totalPrice.subtract(promotionResponse.discountAmount());
+        }
+
+
+        System.out.println(totalPrice);
+
     }
 }

@@ -26,4 +26,5 @@ public class Cart {
         this.sku = sku;
         this.quantity = quantity;
     }
+
 }
