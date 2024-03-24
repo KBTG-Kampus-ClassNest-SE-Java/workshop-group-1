@@ -64,7 +64,7 @@ public class CartControllerTest {
         when(cartService.addCart("Ninja", cartRequest))
                 .thenReturn(
                         new CartResponse(
-                                "Ninja", new ArrayList<>(), BigDecimal.valueOf(123.1), 100));
+                                "Ninja", new ArrayList<>(), BigDecimal.valueOf(123.1), 100, 25));
 
         mockMvc.perform(
                         post("/api/v1/carts/Ninja/items")

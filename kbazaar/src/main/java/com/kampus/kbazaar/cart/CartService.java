@@ -4,16 +4,13 @@ import com.kampus.kbazaar.product.Product;
 import com.kampus.kbazaar.product.ProductResponse;
 import com.kampus.kbazaar.product.ProductResponseWithDiscount;
 import com.kampus.kbazaar.product.ProductService;
-import com.kampus.kbazaar.promotion.PromotionResponse;
 import com.kampus.kbazaar.shopper.ShopperResponse;
 import com.kampus.kbazaar.shopper.ShopperService;
 import jakarta.transaction.Transactional;
-
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -99,6 +96,5 @@ public class CartService {
 
     public void applyPromotionByCodeAndSku(String username, CartPromotion cartpromotion) {
         cartRepository.findByUsernameAndSku(username, cartpromotion.code());
-
     }
 }

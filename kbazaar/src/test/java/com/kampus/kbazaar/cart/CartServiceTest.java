@@ -11,11 +11,13 @@ import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Value;
 
 @ExtendWith(MockitoExtension.class)
 public class CartServiceTest {
@@ -24,8 +26,12 @@ public class CartServiceTest {
     @Mock private ShopperService shopperService;
     @Mock private ProductService productService;
 
+    @Value("${enabled.shipping.fee:true}")
+    boolean enableFeatureFee;
+
     @Test
-    public void addNewCartSuccess() {
+    @DisplayName("add cart should return CartResponse")
+    public void addNewCartSuccessWithOutFee() {
         CartRequest cartRequest = new CartRequest("MOBILE-LG-VELVET", 6);
         String userName = "GeekChic";
         String sku = "MOBILE-LG-VELVET";
@@ -46,7 +52,7 @@ public class CartServiceTest {
         Assertions.assertEquals(cartResponse.totalPrice(), new BigDecimal("6000"));
         Assertions.assertEquals(userName, cartResponse.username());
         Assertions.assertEquals(sku, cartResponse.products().get(0).sku());
-
+        Assertions.assertEquals(0, cartResponse.fee());
         verify(cartRepository, times(1)).save(any());
     }
 
