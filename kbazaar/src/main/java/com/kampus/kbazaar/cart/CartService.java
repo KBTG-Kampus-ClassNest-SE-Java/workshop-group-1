@@ -14,7 +14,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -23,9 +22,7 @@ public class CartService {
     private final CartRepository cartRepository;
     private final ShopperService shopperService;
     private final ProductService productService;
-
     private final PromotionService promotionService;
-    @Autowired
     public CartService(
             CartRepository cartRepository,
             ShopperService shopperService,
@@ -91,6 +88,23 @@ public class CartService {
 
         return new CartResponse(userName, productList, totalPrice, 0);
     }
+
+    public List<ProductResponse> getCartByUserName(String userName) {
+        List<Cart> orders = cartRepository.findAllByUsername(userName);
+        return orders.stream()
+                .map(
+                        order -> {
+                            ProductResponse buff = productService.getBySku(order.getSku());
+                            return new ProductResponse(
+                                    buff.id(),
+                                    buff.name(),
+                                    buff.sku(),
+                                    buff.price(),
+                                    order.getQuantity());
+                        })
+                .toList();
+    }
+
     public void addPromotions(String userName, Promotion promotion) {
         List<Cart> cartResponse = cartRepository.findAllByUsername(userName);
         String promotionCode = promotion.toResponse().code();
@@ -111,5 +125,4 @@ public class CartService {
 
         System.out.println(totalPrice);
 
-    }
-}
+    }}
