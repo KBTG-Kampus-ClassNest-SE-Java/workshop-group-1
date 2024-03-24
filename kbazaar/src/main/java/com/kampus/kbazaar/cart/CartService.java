@@ -4,14 +4,18 @@ import com.kampus.kbazaar.product.Product;
 import com.kampus.kbazaar.product.ProductResponse;
 import com.kampus.kbazaar.product.ProductResponseWithDiscount;
 import com.kampus.kbazaar.product.ProductService;
+import com.kampus.kbazaar.promotion.PromotionResponse;
 import com.kampus.kbazaar.shopper.ShopperResponse;
 import com.kampus.kbazaar.shopper.ShopperService;
 import jakarta.transaction.Transactional;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -20,6 +24,9 @@ public class CartService {
     private final CartRepository cartRepository;
     private final ShopperService shopperService;
     private final ProductService productService;
+
+    @Value("${enabled.shipping.fee:true}")
+    private boolean enableFeatureFee;
 
     @Autowired
     public CartService(
@@ -81,7 +88,17 @@ public class CartService {
                     productServiceBySku.price().multiply(new BigDecimal(cart.getQuantity()));
             totalPrice = totalPrice.add(total);
         }
+        int fee = 0;
+        if (enableFeatureFee) {
+            fee = 25;
+            totalPrice = totalPrice.add(new BigDecimal(fee));
+        }
 
-        return new CartResponse(userName, productList, totalPrice, 0);
+        return new CartResponse(userName, productList, totalPrice, 0, fee);
+    }
+
+    public void applyPromotionByCodeAndSku(String username, CartPromotion cartpromotion) {
+        cartRepository.findByUsernameAndSku(username, cartpromotion.code());
+
     }
 }
