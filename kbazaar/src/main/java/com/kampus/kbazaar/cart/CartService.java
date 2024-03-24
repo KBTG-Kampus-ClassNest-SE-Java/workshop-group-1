@@ -11,7 +11,6 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -21,7 +20,6 @@ public class CartService {
     private final ShopperService shopperService;
     private final ProductService productService;
 
-    @Autowired
     public CartService(
             CartRepository cartRepository,
             ShopperService shopperService,
@@ -83,5 +81,21 @@ public class CartService {
         }
 
         return new CartResponse(userName, productList, totalPrice, 0);
+    }
+
+    public List<ProductResponse> getCartByUserName(String userName) {
+        List<Cart> orders = cartRepository.findAllByUsername(userName);
+        return orders.stream()
+                .map(
+                        order -> {
+                            ProductResponse buff = productService.getBySku(order.getSku());
+                            return new ProductResponse(
+                                    buff.id(),
+                                    buff.name(),
+                                    buff.sku(),
+                                    buff.price(),
+                                    order.getQuantity());
+                        })
+                .toList();
     }
 }
