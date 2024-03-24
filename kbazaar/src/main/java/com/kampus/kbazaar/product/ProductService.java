@@ -26,4 +26,10 @@ public class ProductService {
 
         return product.get().toResponse();
     }
+
+    public List<ProductResponse> listAllProductByPage(int limit, int page) {
+        return productRepository.findAllByPage(limit, page).stream()
+                .map(Product::toResponse)
+                .toList();
+    }
 }

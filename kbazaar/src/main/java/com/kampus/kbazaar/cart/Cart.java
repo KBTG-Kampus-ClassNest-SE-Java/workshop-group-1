@@ -11,7 +11,7 @@ import lombok.Data;
 public class Cart {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @NotBlank @NotEmpty private String username;
 

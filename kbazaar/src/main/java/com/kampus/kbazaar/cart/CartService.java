@@ -2,15 +2,16 @@ package com.kampus.kbazaar.cart;
 
 import com.kampus.kbazaar.product.Product;
 import com.kampus.kbazaar.product.ProductResponse;
+import com.kampus.kbazaar.product.ProductResponseWithDiscount;
 import com.kampus.kbazaar.product.ProductService;
 import com.kampus.kbazaar.promotion.Promotion;
 import com.kampus.kbazaar.promotion.PromotionResponse;
 import com.kampus.kbazaar.promotion.PromotionService;
 import com.kampus.kbazaar.shopper.ShopperResponse;
 import com.kampus.kbazaar.shopper.ShopperService;
-
+import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
-import java.util.Iterator;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,8 @@ public class CartService {
         this.promotionService = promotionService;
     }
 
-    public void addCart(String userName, CartRequest cartRequest) {
+    @Transactional
+    public CartResponse addCart(String userName, CartRequest cartRequest) {
         ShopperResponse shopperResponse = shopperService.getByUsername(userName);
         ProductResponse productResponse = productService.getBySku(cartRequest.productSku());
 
@@ -56,6 +58,38 @@ public class CartService {
             cart.setQuantity(cartRequest.quantity());
             cartRepository.save(cart);
         }
+
+        List<ProductResponseWithDiscount> productList = new ArrayList<>();
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        List<Cart> cartList = cartRepository.findAllByUsername(userName);
+
+        for (Cart cart : cartList) {
+            ProductResponse productServiceBySku = productService.getBySku(cart.getSku());
+            Product p =
+                    new Product(
+                            productServiceBySku.id(),
+                            productServiceBySku.name(),
+                            productServiceBySku.sku(),
+                            productServiceBySku.price(),
+                            cart.getQuantity());
+            BigDecimal finalPrice =
+                    productServiceBySku.price().multiply(new BigDecimal(cart.getQuantity()));
+            productList.add(
+                    new ProductResponseWithDiscount(
+                            p.getName(),
+                            p.getSku(),
+                            p.getPrice(),
+                            cart.getQuantity(),
+                            0,
+                            finalPrice));
+
+            BigDecimal total =
+                    productServiceBySku.price().multiply(new BigDecimal(cart.getQuantity()));
+            totalPrice = totalPrice.add(total);
+        }
+
+        return new CartResponse(userName, productList, totalPrice, 0);
     }
     public void addPromotions(String userName, Promotion promotion) {
         List<Cart> cartResponse = cartRepository.findAllByUsername(userName);

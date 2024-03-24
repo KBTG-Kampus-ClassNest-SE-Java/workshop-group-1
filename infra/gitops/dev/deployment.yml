@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: kbazaar-api
-          image: ghcr.io/kbtg-kampus-classnest-se-java/workshop-group-1:0f8e9a1baabed44f5ea733fab81dee6acef39033
+          image: ghcr.io/kbtg-kampus-classnest-se-java/workshop-group-1:b338092239124779252859576ac365ee37ea6de2
           imagePullPolicy: Always
           ports:
             - containerPort: 8080
@@ -40,6 +40,11 @@ spec:
                 configMapKeyRef:
                   name: app-config
                   key: enabled.feature.promotion.list.api
+            - name: ENABLE_SHIPPING_FEE
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: enabled.shipping.fee
           resources:
             limits:
               cpu: "1"

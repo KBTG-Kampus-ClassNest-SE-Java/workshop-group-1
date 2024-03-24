@@ -22,11 +22,12 @@ public class CartController {
     }
 
     @PostMapping("/carts/{username}/items")
-    public ResponseEntity<String> addCart(
+    public ResponseEntity<CartResponse> addCart(
             @PathVariable("username") String userName,
             @RequestBody @Valid CartRequest cartRequest) {
-        cartService.addCart(userName, cartRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body("create cart success");
+
+        CartResponse cartResponse = cartService.addCart(userName, cartRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).body(cartResponse);
     }
     @PostMapping("/carts/{username}/promotions")
     public ResponseEntity<String> addPromotions(
