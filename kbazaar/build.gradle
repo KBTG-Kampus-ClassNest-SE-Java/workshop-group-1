@@ -65,6 +65,7 @@ test {
 	useJUnitPlatform {
 		excludeTags 'integration-test'
 	}
+	finalizedBy jacocoTestReport
 }
 
 task("test-it", type: Test) {
