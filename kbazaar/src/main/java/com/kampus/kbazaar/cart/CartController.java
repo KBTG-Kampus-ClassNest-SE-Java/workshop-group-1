@@ -28,4 +28,9 @@ public class CartController {
         CartResponse cartResponse = cartService.addCart(userName, cartRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(cartResponse);
     }
+
+    @GetMapping("/carts/{username}")
+    public ResponseEntity<?> getUserItemsByUserName(@PathVariable String username) {
+        return new ResponseEntity<>(cartService.getCartByUserName(username), HttpStatus.OK);
+    }
 }
